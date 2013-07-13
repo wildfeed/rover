@@ -1,0 +1,37 @@
+<?php
+/**
+ * Implements hook_custom_theme().
+ *
+ * This function determines which theme the site will use based on which URL is
+ * used to access the site, the default URL or the mobile (m.) URL. Viewport
+ * detection and redirection is performed by the rover.js script added to the
+ * head of each page.
+ *
+ * @global string $theme
+ * @global string $base_url
+ * @return string
+ */
+function rover_custom_theme() {
+  global $theme;
+  global $base_url;
+  $default_url = str_replace('://www.', '://', $base_url);
+
+  $is_mobile_url = preg_match('/:\/\/m\./', $base_url) ? TRUE : FALSE;
+
+  if ($is_mobile_url) {
+    drupal_add_js('jQuery.extend(Drupal.settings, { "mobile_url": "' . $base_url . '" });', 'inline');
+    $default_url = str_replace('://m.', '://', $base_url);
+    drupal_add_js('jQuery.extend(Drupal.settings, { "site_url": "' . $default_url . '" });', 'inline');
+    drupal_add_js(drupal_get_path('module', 'rover') . '/js/rover.js');
+
+    return 'mobile';
+  }
+  else {
+    $mobile_url = str_replace('://', '://m.', $default_url);
+    drupal_add_js('jQuery.extend(Drupal.settings, { "site_url": "' . $default_url . '" });', 'inline');
+    drupal_add_js('jQuery.extend(Drupal.settings, { "mobile_url": "' . $mobile_url . '" });', 'inline');
+    drupal_add_js(drupal_get_path('module', 'rover') . '/js/rover.js');
+
+    return $theme;
+  }
+}

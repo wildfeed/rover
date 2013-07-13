@@ -1,0 +1,9 @@
+name = Rover
+description = Adds theme switching when mobile devices are detected
+core = 7.x
+package = Rover
+;php =
+;version =
+;dependencies[] =
+files[] = rover.module
+;configure =
