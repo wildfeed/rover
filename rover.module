@@ -14,11 +14,13 @@
 function rover_custom_theme() {
   global $theme;
   global $base_url;
+
   $default_url = str_replace('://www.', '://', $base_url);
+  $go_mobile = preg_match('/:\/\/m\./', $base_url) ? 1 : 0;
+  //var_dump($go_mobile);exit;
+  drupal_add_js('jQuery.extend(Drupal.settings, { "destination_is_mobile": "' . $go_mobile . '" });', 'inline');
 
-  $is_mobile_url = preg_match('/:\/\/m\./', $base_url) ? TRUE : FALSE;
-
-  if ($is_mobile_url) {
+  if ($go_mobile) {
     drupal_add_js('jQuery.extend(Drupal.settings, { "mobile_url": "' . $base_url . '" });', 'inline');
     $default_url = str_replace('://m.', '://', $base_url);
     drupal_add_js('jQuery.extend(Drupal.settings, { "site_url": "' . $default_url . '" });', 'inline');
@@ -27,6 +29,7 @@ function rover_custom_theme() {
     return 'mobile';
   }
   else {
+    dsm('NOT MOBILE URL');
     $mobile_url = str_replace('://', '://m.', $default_url);
     drupal_add_js('jQuery.extend(Drupal.settings, { "site_url": "' . $default_url . '" });', 'inline');
     drupal_add_js('jQuery.extend(Drupal.settings, { "mobile_url": "' . $mobile_url . '" });', 'inline');
