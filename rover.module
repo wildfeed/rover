@@ -15,24 +15,43 @@ function rover_custom_theme() {
   global $theme;
   global $base_url;
 
+  // Strip "www." from URL if it exists
   $default_url = str_replace('://www.', '://', $base_url);
+  // Does URL contain "m." ? Set variable.
   $go_mobile = preg_match('/:\/\/m\./', $base_url) ? 1 : 0;
+  // Pass variable to DOM
   drupal_add_js('jQuery.extend(Drupal.settings, { "destination_is_mobile": "' . $go_mobile . '" });', 'inline');
 
-  if ($go_mobile) {
-    drupal_add_js('jQuery.extend(Drupal.settings, { "mobile_url": "' . $base_url . '" });', 'inline');
+  if ($go_mobile == 1) {
+    $mobile_url = $base_url;
     $default_url = str_replace('://m.', '://', $base_url);
-    drupal_add_js('jQuery.extend(Drupal.settings, { "site_url": "' . $default_url . '" });', 'inline');
-    drupal_add_js(drupal_get_path('module', 'rover') . '/js/rover.js');
 
     return 'mobile';
   }
   else {
     $mobile_url = str_replace('://', '://m.', $default_url);
-    drupal_add_js('jQuery.extend(Drupal.settings, { "site_url": "' . $default_url . '" });', 'inline');
-    drupal_add_js('jQuery.extend(Drupal.settings, { "mobile_url": "' . $mobile_url . '" });', 'inline');
-    drupal_add_js(drupal_get_path('module', 'rover') . '/js/rover.js');
 
     return $theme;
   }
+  // Pass vars to DOM
+  drupal_add_js('jQuery.extend(Drupal.settings, { "site_url": "' . $default_url . '" });', 'inline');
+  drupal_add_js('jQuery.extend(Drupal.settings, { "mobile_url": "' . $mobile_url . '" });', 'inline');
+  drupal_add_js(drupal_get_path('module', 'rover') . '/js/rover.js');
+}
+
+/**
+ * Implements hook_menu().
+ */
+function rover_menu() {
+  $items['admin/config/user-interface/rover'] = array(
+    'title' => 'Mobile URL',
+    'description' => 'Enable theme switching for mobile devices.',
+    'position' => 'right',
+    'page callback' => 'system_admin_menu_block_page',
+    'access arguments' => array('Configure mobile URL theme switch'),
+    'file' => 'system.admin.inc',
+    'weight' => -15,
+  );
+
+  return $items;
 }
