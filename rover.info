@@ -1,9 +1,9 @@
 name = Rover
-description = Adds theme switching when mobile devices are detected
+description = Adds theme switching when mobile devices are detected.
 core = 7.x
 package = Rover
 ;php =
-;version =
+version = VERSION
 ;dependencies[] =
-files[] = rover.module
-;configure =
+;files[] = js/rover.js
+configure = admin/config/user-interface/rover

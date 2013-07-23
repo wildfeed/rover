@@ -43,15 +43,70 @@ function rover_custom_theme() {
  * Implements hook_menu().
  */
 function rover_menu() {
+  $items = array();
+
   $items['admin/config/user-interface/rover'] = array(
-    'title' => 'Mobile URL',
+    'title' => 'ROVER: Mobile URL Detection',
     'description' => 'Enable theme switching for mobile devices.',
-    'position' => 'right',
-    'page callback' => 'system_admin_menu_block_page',
-    'access arguments' => array('Configure mobile URL theme switch'),
-    'file' => 'system.admin.inc',
-    'weight' => -15,
+    //'position' => 'right',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('rover_admin_settings_form'),
+    'access arguments' => array('administer rover'),
+    //'file' => 'rover.admin.inc',
+    //'weight' => -15,
+    'type' => MENU_NORMAL_ITEM
   );
 
   return $items;
+}
+
+/**
+ * Implements hook_admin_settings_form().
+ */
+function rover_admin_settings_form($form, &$form_state) {
+
+  $list_themes = list_themes($refresh = FALSE);
+  $themes = array();
+
+  foreach($list_themes as $theme) {
+    if ($theme->status == 1) {
+      $themes[] = $theme->name;
+    }
+  }
+
+  $form['rover_admin_settings']['mobile_theme_screen_width'] = array(
+    '#title' => 'Screen width',
+    '#description' => 'Minimum screen width of a device browsing the site
+      in pixels. When devices with smaller screens are detected, they are
+      redirected to the m-dot URL (m.yourdomain.com).',
+    '#type' => 'textfield',
+    '#default_value' => variable_get('mobile_theme_screen_width'),
+    '#size' => 5,
+    '#maxlength' => 5,
+    '#required' => TRUE
+  );
+
+  //  $themes = array('mobile', 'not mobile');
+  $form['rover_admin_settings']['mobile_theme'] = array(
+    '#title' => 'mobile theme',
+    '#description' => 'Mobile theme to use when m. redirection is applied',
+    '#type' => 'select',
+    '#options' => $themes,
+    '#default_value' => variable_get('mobile_theme'),
+    '#required' => TRUE
+  );
+
+  return system_settings_form($form);
+}
+
+/**
+ * Implements hook_permission().
+ */
+function rover_permission() {
+  return array(
+    'administer rover' => array(
+      'title' => t('Configure theme switching for mobile.'),
+      'description' => t('Set screen.width.'),
+    ),
+  );
 }
